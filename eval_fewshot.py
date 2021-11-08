@@ -17,8 +17,13 @@ from dataset.mini_imagenet import ImageNet, MetaImageNet
 from dataset.tiered_imagenet import TieredImageNet, MetaTieredImageNet
 from dataset.cifar import CIFAR100, MetaCIFAR100
 from dataset.transform_cfg import transforms_options, transforms_list
+from dataset.custom_dataset import CustomDataset, MetaCustomDataset
 
 from eval.meta_eval import meta_test
+import warnings
+
+warnings.filterwarnings('ignore')
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
 
 def parse_option():
@@ -32,15 +37,15 @@ def parse_option():
     parser.add_argument('--model_path', type=str, default=None, help='absolute path to .pth model')
 
     # dataset
-    parser.add_argument('--dataset', type=str, default='miniImageNet', choices=['miniImageNet', 'tieredImageNet',
-                                                                                'CIFAR-FS', 'FC100'])
+    parser.add_argument('--dataset', type=str, default='customDataset', choices=['miniImageNet', 'tieredImageNet',
+                                                                                'CIFAR-FS', 'FC100', 'customDataset'])
     parser.add_argument('--transform', type=str, default='A', choices=transforms_list)
 
     # meta setting
     parser.add_argument('--n_test_runs', type=int, default=600, metavar='N',
                         help='Number of test runs')
-    parser.add_argument('--n_ways', type=int, default=5, metavar='N',
-                        help='Number of classes for doing each classification run')
+    parser.add_argument('--n_ways', type=int, default=2, metavar='N',
+                        help='Number of classes for doing each classification run: custom dataset(2), other(5)')
     parser.add_argument('--n_shots', type=int, default=1, metavar='N',
                         help='Number of shots in test')
     parser.add_argument('--n_queries', type=int, default=15, metavar='N',
@@ -56,6 +61,12 @@ def parse_option():
 
     opt = parser.parse_args()
 
+    if opt.dataset == 'CIFAR-FS' or opt.dataset == 'FC100':
+        opt.transform = 'D'
+
+    if opt.dataset == 'customDataset':
+        opt.transform = 'E'
+        
     if 'trainval' in opt.model_path:
         opt.use_trainval = True
     else:
@@ -144,6 +155,23 @@ def main():
                 n_cls = 60
             else:
                 raise NotImplementedError('dataset not supported: {}'.format(opt.dataset))
+    elif opt.dataset == "customDataset":
+        train_trans, test_trans = transforms_options['E']
+
+        meta_testloader = DataLoader(MetaCustomDataset(args=opt, partition='test',
+                                                       train_transform=train_trans,
+                                                       test_transform=test_trans),
+                                     batch_size=opt.test_batch_size, shuffle=False, drop_last=False,
+                                     num_workers=opt.num_workers)
+        meta_valloader = DataLoader(MetaCustomDataset(args=opt, partition='val',
+                                                      train_transform=train_trans,
+                                                      test_transform=test_trans),
+                                    batch_size=opt.test_batch_size, shuffle=False, drop_last=False,
+                                    num_workers=opt.num_workers)
+        if opt.use_trainval:
+            n_cls = 6
+        else:
+            n_cls = 3
     else:
         raise NotImplementedError(opt.dataset)
 

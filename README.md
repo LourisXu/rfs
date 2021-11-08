@@ -1,3 +1,8 @@
+# Ref
+
+The repo comes from [this](https://github.com/WangYueFt/rfs/)
+
+
 # RFS
 
 Representations for Few-Shot Learning (RFS). This repo covers the implementation of the following paper:  
@@ -43,4 +48,42 @@ Yue Wang (yuewang@csail.mit.edu)
 ## Acknowlegements
 Part of the code for distillation is from [RepDistiller](http://github.com/HobbitLong/RepDistiller) repo.
 
+---
 
+## Custom Dataset For Medical Image Analysis
+
+In order to apply our medical images for few-shot learning on this repo, we modified the codes in some cases. The usage is shown as the followings.
+
+
+**（1）Generate the data with the specified format.**
+
+Firstly, we need to generate the data with the specified format `.pickle` whose type is `dict`:
+- data['data']: imgs (type: numpy.array, (batch_size, width, height, channels))
+- data['labels']: labels (type: list) 
+
+As `utils/create_dataset.py` shown, we split the data as `train.pickle`, `val.pickle`, `test.pickle`, `trainval.pickle`, the structure of the origin medical images should be like this:
+```
+directory/
+├── class_x
+│   ├── xxx.tif
+│   ├── xxy.tif
+│   └── ...
+└── class_y
+    ├── 123.tif
+    ├── nsdf3.tif
+    └── ...
+    └── asd932_.tif
+```
+
+In the function `load_data`, the parameter `numPerClass` denotes the number of imgs each class sampling in the original medical images.
+
+**（2）Choose the correct `Dataset` and `transform` for training:**
+
+In `train_supervised.py`, `train_distillation.py`, `eval_fewshot.py`, we should set the value `customDataset` of `dataset` and set the value $n$  of `n-ways` in `args.parser`. 
+**Note the `n` must be less than the number of total classes `N` in `train_dataset`.**
+
+For medical images with different sizes, we should modify the `transform_E` in `dataset/transform_cfg.py`.
+
+**（3）Set the appropriate top-k.**
+
+In the function `train`, `validate` and `accuracy`, we should set the `topk=(1, k)`, the `k` must be less than the number of total classes `N` in `train_dataset`. Obviously, when `k == N`, `Top-k acc` must be 100% in the logs of the trainning phase, as `Top-1 acc` gives us accuracy in the usual sense.

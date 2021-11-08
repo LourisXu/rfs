@@ -20,7 +20,7 @@ def create_model(name, n_cls, dataset='miniImageNet'):
             model = model_dict[name](num_classes=n_cls)
         else:
             raise NotImplementedError('model {} not supported in dataset {}:'.format(name, dataset))
-    elif dataset == 'CIFAR-FS' or dataset == 'FC100':
+    elif dataset == 'CIFAR-FS' or dataset == 'FC100' or dataset == "customDataset":
         if name.startswith('resnet') or name.startswith('seresnet'):
             model = model_dict[name](avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=n_cls)
         elif name.startswith('convnet'):

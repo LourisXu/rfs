@@ -87,7 +87,7 @@ def meta_test(net, testloader, use_logit=True, is_norm=True, classifier='LR', op
                 query_ys_pred = Proto(support_features, support_ys, query_features, opt)
             else:
                 raise NotImplementedError('classifier not supported: {}'.format(classifier))
-
+            # print(query_ys.shape, query_ys_pred.shape)
             acc.append(metrics.accuracy_score(query_ys, query_ys_pred))
 
     return mean_confidence_interval(acc)
