@@ -96,7 +96,7 @@ Before runing the program, we should create the dirs, `checkpoints` and `tensorb
 
 ```python
 # ======================
-# exampler commands on miniImageNet
+# exampler commands on custom datasets
 # ======================
 
 # supervised pre-training

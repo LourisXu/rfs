@@ -1,5 +1,5 @@
 # ======================
-# exampler commands on miniImageNet
+# exampler commands on custom datasets
 # ======================
 
 # supervised pre-training
