@@ -87,3 +87,26 @@ For medical images with different sizes, we should modify the `transform_E` in `
 **（3）Set the appropriate top-k.**
 
 In the function `train`, `validate` and `accuracy`, we should set the `topk=(1, k)`, the `k` must be less than the number of total classes `N` in `train_dataset`. Obviously, when `k == N`, `Top-k acc` must be 100% in the logs of the trainning phase, as `Top-1 acc` gives us accuracy in the usual sense.
+
+**（4）Set `run.sh` to train**
+
+Before runing the program, we should create the dirs, `checkpoints` and `tensorboardlogs` for `train_supervised.py`, `dis_checkpoints` and `dis_tensorboardlogs` for `train_distillation.py`.
+
+`run.sh`: 
+
+```python
+# ======================
+# exampler commands on miniImageNet
+# ======================
+
+# supervised pre-training
+python train_supervised.py --trial pretrain --model_path ./checkpoints --tb_path ./tensorboardlogs --data_root ./data
+
+# distillation
+# setting '-a 1.0' should give simimlar performance
+# python train_distillation.py -r 0.5 -a 0.5 --path_t ./checkpoints/resnet12_customDataset_lr_0.05_decay_0.0005_trans_A_trial_pretrain/resnet12_last.pth --trial born1 --model_path ./dis_checkpoints --tb_path ./dis_tensorboardlogs --data_root ./data/
+
+# evaluation
+# python eval_fewshot.py --model_path ./dis_checkpoints/S:resnet12_T:resnet12_customDataset_kd_r:0.5_a:0.5_b:0_trans_A_born1/resnet12_last.pth --data_root ./data/customDataset/
+
+```
