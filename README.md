@@ -92,7 +92,7 @@ In the function `train`, `validate` and `accuracy`, we should set the `topk=(1, 
 
 Before runing the program, we should create the dirs, `checkpoints` and `tensorboardlogs` for `train_supervised.py`, `dis_checkpoints` and `dis_tensorboardlogs` for `train_distillation.py`.
 
-`run.sh`: 
+`run.sh`: See code for specific parameters.
 
 ```python
 # ======================
